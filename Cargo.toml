@@ -2,7 +2,7 @@
 name = "teapot"
 version = "0.1.0"
 edition = "2021"
-description = "A really basic default HTTP backend"
+description = "A rusty teapot"
 license = "MIT"
 license-file = "LICENSE"
 
