@@ -6,7 +6,7 @@ use rocket::response::{content, status};
 pub fn teapot() -> status::Custom<content::RawJson<&'static str>> {
     status::Custom(
         Status::ImATeapot,
-        content::RawJson("{\"418\":\"I'm a teapot - 🫖\"}"),
+        content::RawJson("{\"418\":\"I'm a teapot\"}"),
     )
 }
 
@@ -15,12 +15,12 @@ pub fn teapot() -> status::Custom<content::RawJson<&'static str>> {
 pub fn notfound() -> status::Custom<content::RawJson<&'static str>> {
     status::Custom(
         Status::NotFound,
-        content::RawJson("{\"404\":\"Not Found - 🚫\"}"),
+        content::RawJson("{\"404\":\"Not Found\"}"),
     )
 }
 
 // http://127.0.0.1:8000/healthz
 #[get("/")]
 pub fn healthz() -> status::Custom<content::RawJson<&'static str>> {
-    status::Custom(Status::Ok, content::RawJson("{\"status\":\"ok - 🚀\"}"))
+    status::Custom(Status::Ok, content::RawJson("{\"status\":\"ok\"}"))
 }
