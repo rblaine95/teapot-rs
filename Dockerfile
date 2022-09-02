@@ -1,13 +1,8 @@
 ##### builder
-FROM rust:1.62 AS builder
+FROM rust:1.63 AS builder
 
 WORKDIR /opt/teapot
-
-RUN rustup update stable
-RUN cargo install cargo-audit
 COPY . .
-RUN cargo audit
-RUN export ROCKET_CONFIG=/opt/teapot/rocket.toml; cargo test
 RUN cargo build --release
 
 ##### runner
