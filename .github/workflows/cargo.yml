@@ -29,6 +29,7 @@ jobs:
         with:
           command: install
           args: cargo-audit clippy-sarif sarif-fmt
+        continue-on-error: true
   audit:
     name: audit
     needs: [install]
@@ -98,7 +99,7 @@ jobs:
         run: |
           cargo clippy \
           --all-features \
-          --message-format=json | clippy-sarif | sarif-fmt | tee rust-clippy-results.sarif
+          --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
         continue-on-error: true
       - uses: github/codeql-action/upload-sarif@v2
         with:
