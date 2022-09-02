@@ -3,8 +3,35 @@ name: cargo
 on: [workflow_dispatch, push]
 
 jobs:
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: cargo install
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-audit
+      - name: cargo audit
+        uses: actions-rs/cargo@v1
+        with:
+          command: audit
   check:
     name: check
+    needs: [audit]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
