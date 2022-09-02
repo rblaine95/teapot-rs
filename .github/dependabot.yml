@@ -6,3 +6,9 @@ updates:
       interval: "daily"
     reviewers:
       - rblaine95
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    reviewers:
+      - rblaine95
