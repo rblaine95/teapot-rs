@@ -1,10 +1,38 @@
 name: cargo
 
-on: [workflow_dispatch, push]
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
+  install:
+    name: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-audit clippy-sarif sarif-fmt
   audit:
     name: audit
+    needs: [install]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -20,11 +48,6 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: cargo install
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-audit
       - name: cargo audit
         uses: actions-rs/cargo@v1
         with:
@@ -55,6 +78,9 @@ jobs:
     name: clippy
     needs: [check]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
@@ -69,14 +95,21 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: cargo clippy
-        uses: actions-rs/cargo@v1
+      - name: clippy analyze
+        run: |
+          cargo clippy \
+          --all-features \
+          --message-format=json | clippy-sarif | sarif-fmt | tee rust-clippy-results.sarif
+        continue-on-error: true
+      - uses: github/codeql-action/upload-sarif@v2
         with:
-          command: clippy
+          sarif_file: rust-clippy-results.sarif
+          wait-for-processing: true
   test:
     name: test
     needs: [clippy]
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'schedule' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
@@ -99,6 +132,7 @@ jobs:
     name: docker
     needs: [test]
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'schedule' }}
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
