@@ -26,3 +26,12 @@ fn test_healthz() {
 	let resp = req.dispatch();
     assert_eq!(resp.status(), Status::Ok);
 }
+
+#[test]
+fn test_metrics() {
+	let client = Client::tracked(rocket()).expect("valid rocket instance");
+	let req = client.get("/metrics");
+	let resp = req.dispatch();
+	assert_eq!(resp.status(), Status::Ok);
+	assert_eq!(resp.content_type(), Some(rocket::http::ContentType::Plain));
+}
