@@ -8,8 +8,8 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  install:
-    name: install
+  cargo:
+    name: install-audit-check-test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,77 +25,22 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: actions-rs/cargo@v1
+      - name: install
+        uses: actions-rs/cargo@v1
         with:
           command: install
           args: cargo-audit clippy-sarif sarif-fmt
         continue-on-error: true
-  audit:
-    name: audit
-    needs: [install]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: cargo audit
+      - name: audit
         uses: actions-rs/cargo@v1
         with:
           command: audit
-  check:
-    name: check
-    needs: [audit]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: cargo check
+      - name: check
+        if: ${{ github.event_name != 'schedule' }}
         uses: actions-rs/cargo@v1
         with:
           command: check
-  clippy:
-    name: clippy
-    needs: [check]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: clippy analyze
+      - name: analyze
         run: |
           cargo clippy \
           --all-features \
@@ -105,32 +50,14 @@ jobs:
         with:
           sarif_file: rust-clippy-results.sarif
           wait-for-processing: true
-  test:
-    name: test
-    needs: [clippy]
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'schedule' }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: cargo test
+      - name: test
+        if: ${{ github.event_name != 'schedule' }}
         uses: actions-rs/cargo@v1
         with:
           command: test
   docker:
     name: docker
-    needs: [test]
+    needs: [cargo]
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'schedule' }}
     steps:
