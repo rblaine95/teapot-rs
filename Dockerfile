@@ -12,7 +12,7 @@ ENV ROCKET_CONFIG /opt/teapot/rocket.toml
 
 WORKDIR /opt/teapot
 
-COPY --chown=65532:65532 --from=builder /opt/teapot/target/release/teapot-rs /opt/teapot/bin/teapot
+COPY --chown=65532:65532 --from=builder /opt/teapot/target/release/teapot /opt/teapot/bin/teapot
 COPY --chown=65532:65532 ./rocket.toml ${ROCKET_CONFIG}
 
 USER 65532
