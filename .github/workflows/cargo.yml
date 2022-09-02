@@ -1,0 +1,21 @@
+name: cargo
+
+on: [workflow_dispatch, push]
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+      - name: cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
