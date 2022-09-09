@@ -9,7 +9,7 @@ on:
 
 jobs:
   cargo:
-    name: install-audit-check-test
+    name: Check, Test, Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,16 +25,6 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: install
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-audit clippy-sarif sarif-fmt
-        continue-on-error: true
-      - name: audit
-        uses: actions-rs/cargo@v1
-        with:
-          command: audit
       - name: check
         if: ${{ github.event_name != 'schedule' }}
         uses: actions-rs/cargo@v1

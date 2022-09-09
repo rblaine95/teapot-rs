@@ -1,0 +1,28 @@
+name: audit
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  audit:
+    name: Cargo Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: install
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-audit
+        continue-on-error: true
+      - name: audit
+        uses: actions-rs/cargo@v1
+        with:
+          command: audit
