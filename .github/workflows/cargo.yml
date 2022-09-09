@@ -25,6 +25,15 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -33,6 +42,7 @@ jobs:
         with:
           command: install
           args: clippy-sarif sarif-fmt
+        continue-on-error: true
       - name: Code Analysis
         run: |
           cargo clippy \
@@ -46,6 +56,7 @@ jobs:
 
   test:
     name: Test
+    needs: [clippy, audit]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -68,7 +79,7 @@ jobs:
 
   docker:
     name: Docker Build
-    needs: [test, clippy, audit]
+    needs: [test]
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'schedule' }}
     steps:
