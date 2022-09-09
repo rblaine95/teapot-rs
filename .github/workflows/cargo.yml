@@ -64,7 +64,7 @@ jobs:
 
   docker:
     name: Docker Build
-    needs: [test]
+    needs: [test, clippy, audit]
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'schedule' }}
     steps:
