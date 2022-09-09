@@ -25,11 +25,10 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: check
-        if: ${{ github.event_name != 'schedule' }}
-        uses: actions-rs/cargo@v1
+      - uses: actions-rs/clippy-check@v1
         with:
-          command: check
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
       - name: analyze
         run: |
           cargo clippy \
