@@ -77,9 +77,14 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: actions-rs/cargo@v1
+      - uses: actions-rs/tarpaulin@v0.1
         with:
-          command: test
+          args: '-- --test-threads 1'
+      - uses: codecov/codecov-action@v3
+      - uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-report
+          path: cobertura.xml
 
   docker:
     name: Docker Build
