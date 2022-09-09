@@ -8,6 +8,28 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
+
   cargo:
     name: Check, Test, Build
     runs-on: ubuntu-latest
@@ -25,10 +47,6 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
       - name: analyze
         run: |
           cargo clippy \
@@ -44,6 +62,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+
   docker:
     name: docker
     needs: [cargo]
