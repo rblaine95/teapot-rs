@@ -29,9 +29,19 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features
+      - name: Code Analysis
+        run: |
+          cargo clippy \
+          --all-features \
+          --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
+        continue-on-error: true
+      - uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: rust-clippy-results.sarif
+          wait-for-processing: true
 
-  cargo:
-    name: Check, Test, Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -47,25 +57,14 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: analyze
-        run: |
-          cargo clippy \
-          --all-features \
-          --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
-        continue-on-error: true
-      - uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: rust-clippy-results.sarif
-          wait-for-processing: true
-      - name: test
+      - uses: actions-rs/cargo@v1
         if: ${{ github.event_name != 'schedule' }}
-        uses: actions-rs/cargo@v1
         with:
           command: test
 
   docker:
-    name: docker
-    needs: [cargo]
+    name: Docker Build
+    needs: [test]
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'schedule' }}
     steps:
