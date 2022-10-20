@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate rocket;
+use rocket::fs::FileServer;
 use rocket_prometheus::PrometheusMetrics;
 
 mod paths;
@@ -19,4 +20,5 @@ fn rocket() -> _ {
         .register("/404", catchers![paths::notfound])
         .mount("/healthz", routes![paths::healthz])
         .mount("/metrics", prometheus)
+		.mount("/", FileServer::from("./assets/static"))
 }
