@@ -20,5 +20,5 @@ fn rocket() -> _ {
         .register("/404", catchers![paths::notfound])
         .mount("/healthz", routes![paths::healthz])
         .mount("/metrics", prometheus)
-		.mount("/", FileServer::from("./assets/static"))
+        .mount("/", FileServer::from("./assets/static"))
 }

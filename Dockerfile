@@ -1,5 +1,5 @@
 ##### builder
-FROM rust:1.64 AS builder
+FROM rust:1.65 AS builder
 
 WORKDIR /opt/teapot
 COPY . .
