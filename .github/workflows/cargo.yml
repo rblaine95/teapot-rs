@@ -109,7 +109,7 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
-      - uses: docker/build-push-action@v3
+      - uses: docker/build-push-action@v4
         with:
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
