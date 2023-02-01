@@ -13,18 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
       - uses: actions/cache@v3
         with:
           path: |
@@ -36,14 +24,28 @@ jobs:
             ~/.cargo/.crates2.json
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/clippy-check@v1
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo audit
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
-      - uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: clippy-sarif sarif-fmt
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo clippy --all-features
+      - run: cargo install clippy-sarif sarif-fmt
         continue-on-error: true
       - name: Code Analysis
         run: |
@@ -74,12 +76,9 @@ jobs:
             ~/.cargo/.crates2.json
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions-rs/tarpaulin@v0.1
-        with:
-          args: '-- --test-threads 1'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo install cargo-tarpaulin
+      - run: cargo tarpaulin --verbose --all-features --out Xml -- --test-threads 1
       - uses: codecov/codecov-action@v3
       - uses: actions/upload-artifact@v3
         with:
