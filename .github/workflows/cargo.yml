@@ -3,7 +3,6 @@ name: cargo
 on:
   workflow_dispatch:
   push:
-  pull_request:
   schedule:
     - cron: "0 0 * * *"
 
@@ -44,9 +43,10 @@ jobs:
             ~/.cargo/.crates2.json
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - run: cargo clippy --all-features
-      - run: cargo install clippy-sarif sarif-fmt
-        continue-on-error: true
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-binstall
+      - run: cargo binstall -y --force clippy-sarif sarif-fmt
       - name: Code Analysis
         run: |
           cargo clippy \
@@ -76,8 +76,11 @@ jobs:
             ~/.cargo/.crates2.json
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-binstall
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo install cargo-tarpaulin
+      - run: cargo binstall -y --force cargo-tarpaulin
       - run: cargo tarpaulin --verbose --all-features --out Xml -- --test-threads 1
       - uses: codecov/codecov-action@v3
       - uses: actions/upload-artifact@v3
@@ -106,7 +109,6 @@ jobs:
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
             type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
       - uses: docker/build-push-action@v4
         with:
