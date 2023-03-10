@@ -1,5 +1,7 @@
 # Teapot
 
+![Minimum Supported Rust Version (1.68)](https://img.shields.io/badge/msrv-1.68-red)
+
 An HTTP backend written in Rust powered by [rocket.rs](https://rocket.rs)
 
 ### Why?
