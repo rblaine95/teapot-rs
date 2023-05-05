@@ -60,7 +60,6 @@ jobs:
 
   test:
     name: Test
-    needs: [clippy, audit]
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'schedule' }}
     steps:
@@ -90,7 +89,7 @@ jobs:
 
   docker:
     name: Docker Build
-    needs: [test]
+    needs: [clippy, audit, test]
     permissions:
       contents: read
       packages: write
