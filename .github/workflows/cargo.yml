@@ -81,7 +81,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo binstall -y --force cargo-tarpaulin
       - run: cargo tarpaulin --verbose --all-features --out Xml -- --test-threads 1
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v3
       - uses: actions/upload-artifact@v3
         with:
           name: code-coverage-report
