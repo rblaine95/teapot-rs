@@ -1,6 +1,6 @@
 [package]
 name = "teapot"
-version = "0.1.10"
+version = "0.1.11"
 edition = "2021"
 description = "A rusty teapot"
 license = "MIT"
@@ -8,8 +8,8 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.5.0-rc.3"
-rocket_prometheus = "0.10.0-rc.3"
+rocket = "0.5.0"
+rocket_prometheus = "0.10.0"
 
 [dev-dependencies]
 rusty-hook = "0.11"
