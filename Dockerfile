@@ -1,5 +1,5 @@
 ##### builder
-FROM docker.io/rust:1.73 AS builder
+FROM docker.io/rust:1.76 AS builder
 
 WORKDIR /opt/teapot
 COPY . .
